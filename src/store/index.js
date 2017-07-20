@@ -11,7 +11,8 @@ const debug = process.env.NODE_ENV !== 'production'
 
 const state = {
   dataNodes: [],
-  nodes: {}
+  nodes: {},
+  activeNodes: {}
 }
 
 const getters = {
@@ -22,7 +23,8 @@ const getters = {
   },
   getNodeByKey: state => (key) => {
     return state.dataNodes[state.nodes[key].idx]
-  }
+  },
+  getActiveNodes: state => state.activeNodes
 }
 
 const mutations = {
@@ -33,12 +35,18 @@ const mutations = {
         state.nodes[itm._id] = {idx: idx}
       })
     }
+  },
+  SETACTIVE (state, tree) {
+    state.activeNodes = tree
   }
 }
 
 const actions = {
   setNodes ({commit}, nodes) {
     commit('SETNODES', nodes)
+  },
+  setActive ({commit}, tree) {
+    commit('SETACTIVE', tree)
   }
 }
 
