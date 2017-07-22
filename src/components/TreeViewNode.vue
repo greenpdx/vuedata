@@ -89,7 +89,7 @@ export default {
       'getNodeByIdx'
     ]),
     n: function () {
-      console.log('NEW', this.node.name, this.node.chld)
+//      console.log('NEW', this.node.name, this.node.chld)
       return this.node
     },
     hasChildren: function () {

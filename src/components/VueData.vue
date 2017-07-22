@@ -28,7 +28,7 @@
         </div>
       </fieldset>
       <div class="chklist">
-        <select class="chkinput" v-model="year">
+        <select @change="onSelect($event)" class="chkinput" v-model="year">
             <option class="chkinput" v-for="n in range(1976,2017)">{{ n }}</option>
           </select>
       </div>
@@ -108,6 +108,11 @@ export default {
       setActive: 'setActive',
       setTotal: 'setTotal'
     }),
+
+    onSelect (evt) {
+      console.log('CHG', evt.target.value)
+      this.selectedYear = evt.target.value
+    },
 
     sortSum (a, b) {
       if (a.sum > b.sum) { return -1 }
