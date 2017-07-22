@@ -51,7 +51,8 @@ export default {
   data () {
     return {
       selected: false,
-      expanded: false
+      expanded: false,
+      name: ''
     }
   },
 
@@ -82,9 +83,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      total: 'total'
-    }),
+    ...mapGetters([
+      'total',
+      'rawData',
+      'getNodeByIdx'
+    ]),
     n: function () {
       console.log('NEW', this.node.name, this.node.chld)
       return this.node
