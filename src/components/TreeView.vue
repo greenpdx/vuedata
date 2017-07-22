@@ -1,12 +1,10 @@
 <template>
   <div class="tree-view">
-    <div v-for="node in nodes">
-      <div class="tv-node">
+    <div v-for="node in nodes" class="tv-node">
         <tree-view-node :node="node">
           <!-- slider-node v-show="selected":node="node"></slider-node -->
         </tree-view-node>
         <br>
-      </div>
     </div>
   </div>
 </template>
@@ -63,11 +61,10 @@ export default {
   display: block;
   width: auto;
   height: 600px;
-  width: 100%;
 }
 .tv-node {
-  display: inline-block;
+  display: block;
   float: left;
-  width: 100%
+  width: 45em;
 }
 </style>

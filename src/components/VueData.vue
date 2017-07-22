@@ -117,6 +117,7 @@ export default {
 
     onClick (evt) {
       let ary = this.rawData
+      this.total = 0
       let rslt = this.groupData(ary, this.filterData)
       console.log(rslt)
       this.tree = rslt.tree
@@ -278,7 +279,6 @@ export default {
 }
 .tree-view {
   display: inline-block;
-  overflow: auto;
 }
 h1,
 h2 {

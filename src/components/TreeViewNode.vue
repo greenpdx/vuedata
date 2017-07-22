@@ -1,25 +1,32 @@
 <template>
   <div class="tree-view-node">
-    <div @click="selClick" class="tvn-node">
+    <div class="tvn-node">
       <div v-if="hasChildren" class="tvn-expand">
-        <div class="tvn-expander">
-          <span v-if="expanded">&#9660;</span>
-          <span v-else>&#9658;</span>
+        <div v-bind:class="indent" @click="onExpand">
+          <span v-show="expanded">&#9660;</span>
+          <span v-show="!expanded">&#9658;</span>
         </div>
-        <div>
+        <div class="tvn-line" @click="selClick">
           <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
           <span class="tvn-name"> {{ n.name }} </span>
           <slider-node v-show="selected" :node="node"></slider-node>
         </div>
-        <br>
+        <div v-if="expanded">
+          <div v-for="node in nodes">
+            <tree-view-node :node="node" :level="level + 1"></tree-view-node>
+          </div>
+        </div>
       </div>
       <div v-else>
-        <div>
-          <span> {{ toMoney(n.sum) }}</span> <span> {{ n.name }} </span>
-          <!-- slider-node v-show="selected" :node="n"></slider-node -->
+        <div class="tvn-line" @click="selClick">
+          <span class="noexpand">&#9866;</span>
+          <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
+          <span class="tvn-name"> {{ n.name }} </span>
+          <slider-node v-show="selected" :node="node"></slider-node>
         </div>
       </div>
     </div>
+    <br/>
   </div>
 </template>
 
@@ -35,7 +42,10 @@ export default {
   },
 
   props: {
-    node: {}
+    node: {},
+    level: {
+      default: 0
+    }
   },
 
   data () {
@@ -55,7 +65,16 @@ export default {
 
   methods: {
     selClick () {
-      this.selected = true
+      console.log('sel', this.node._id)
+      this.selected = !this.selected
+    },
+    onExpand () {
+      console.log(this.n.name)
+      if (this.expanded) {
+        this.expanded = false
+      } else {
+        this.expanded = true
+      }
     },
     toMoney (val) {
       return Math.floor(lib.fromPercent(val, this.total) + 0.00001)
@@ -67,10 +86,32 @@ export default {
       total: 'total'
     }),
     n: function () {
+      console.log('NEW', this.node.name, this.node.chld)
       return this.node
     },
     hasChildren: function () {
+      if (!this.node.chld) {
+        return false
+      }
       return (this.node.chld.length !== 0)
+    },
+    nodes: function () {
+//      console.log('TVNnodes', this.node.name, this.node.chld)
+      return this.node.chld
+    },
+    indent: function () {
+      let lvl = 'level0'
+      console.log('indent', this.node.name, this.level)
+      switch (this.level) {
+        case 2:
+          lvl = 'level2'
+          break
+        case 1:
+          lvl = 'level1'
+          break
+        default:
+      }
+      return lvl
     }
   }
 }
@@ -80,23 +121,57 @@ export default {
 .tree-view-node {
   display: block;
   float: left;
-  width: 100%
+  width: 45em;
 }
 .tvn-expand {
-  display: block;
-}.
+  display: inline;
+}
+.noexpand {
+  float: left;
+  text-align: right;
+  width: 3em;
+  cursor: cell;
+}
 .tvn-expander {
-
+  float: left;
+  text-align: left;
+  cursor: pointer;
+}
+.level0 {
+  float: left;
+  text-align: left;
+  cursor: pointer;
+  width: 3em;
+}
+.level1 {
+  float: left;
+  text-align: left;
+  cursor: pointer;
+  width: 2em;
+  padding-left: 1em;
+}
+.level2 {
+  float: left;
+  text-align: left;
+  cursor: pointer;
+  width: 1em;
+  padding-left: 2em;
 }
 .tvn-node {
   display: inline-block;
+  float: left;
+  width: 100%
+}
+.tvn-line {
+  text-align: left;
+  cursor: cell;
 }
 .tvn-amount {
   display: inline-block;
   width: 4em;
-  text-align: left;
+  text-align: right;
+  margin-right: 1em;
 }
 .tvn-name {
-  width: 300px;
 }
 </style>
