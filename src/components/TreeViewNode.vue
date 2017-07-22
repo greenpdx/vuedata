@@ -1,16 +1,23 @@
 <template>
-  <div class="tree-view-node"
-    @click="selClick">
-    <div v-if="hasChildren">
-      <div>
-        <span> {{ toMoney(n.sum) }}</span> <span> {{ n.name }} </span>
-        <slider-node v-show="selected" :node="node"></slider-node>
+  <div class="tree-view-node">
+    <div @click="selClick" class="tvn-node">
+      <div v-if="hasChildren" class="tvn-expand">
+        <div class="tvn-expander">
+          <span v-if="expanded">&#9660;</span>
+          <span v-else>&#9658;</span>
+        </div>
+        <div>
+          <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
+          <span class="tvn-name"> {{ n.name }} </span>
+          <slider-node v-show="selected" :node="node"></slider-node>
+        </div>
+        <br>
       </div>
-    </div>
-    <div v-else>
-      <div>
-        <span> {{ toMoney(n.sum) }}</span> <span> {{ n.name }} </span>
-        <!-- slider-node v-show="selected" :node="n"></slider-node -->
+      <div v-else>
+        <div>
+          <span> {{ toMoney(n.sum) }}</span> <span> {{ n.name }} </span>
+          <!-- slider-node v-show="selected" :node="n"></slider-node -->
+        </div>
       </div>
     </div>
   </div>
@@ -33,7 +40,8 @@ export default {
 
   data () {
     return {
-      selected: false
+      selected: false,
+      expanded: false
     }
   },
 
@@ -69,4 +77,26 @@ export default {
 </script>
 
 <style scoped>
+.tree-view-node {
+  display: block;
+  float: left;
+  width: 100%
+}
+.tvn-expand {
+  display: block;
+}.
+.tvn-expander {
+
+}
+.tvn-node {
+  display: inline-block;
+}
+.tvn-amount {
+  display: inline-block;
+  width: 4em;
+  text-align: left;
+}
+.tvn-name {
+  width: 300px;
+}
 </style>

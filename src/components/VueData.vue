@@ -35,9 +35,11 @@
       <button @click="onClick">Test</button>
     </div>
   </div>
-  <span> {{ total }} </span>
-  <tree-view :tree="tree">
-  </tree-view>
+  <div class='tree-view'>
+    <span> {{ total }} </span>
+    <tree-view :tree="tree">
+    </tree-view>
+  </div>
 </div>
 </template>
 
@@ -274,7 +276,10 @@ export default {
 .hrow {
   display: inline-block;
 }
-
+.tree-view {
+  display: inline-block;
+  overflow: auto;
+}
 h1,
 h2 {
   font-weight: normal;

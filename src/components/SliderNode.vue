@@ -25,7 +25,6 @@ export default {
   },
 
   updated () {
-    console.log('updateSN', this.node)
   },
 
   methods: {

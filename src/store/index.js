@@ -13,7 +13,9 @@ const state = {
   dataNodes: [],
   nodes: {},
   activeNodes: {},
-  total: 0
+  total: 0,
+  selectedNode: null,
+  hoverNode: null
 }
 
 const getters = {
