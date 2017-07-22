@@ -12,10 +12,12 @@ const debug = process.env.NODE_ENV !== 'production'
 const state = {
   dataNodes: [],
   nodes: {},
-  activeNodes: {}
+  activeNodes: {},
+  total: 0
 }
 
 const getters = {
+  total: state => state.total,
   nodes: state => state.nodes,
   rawData: state => state.dataNodes,
   getNodeByIdx: state => (idx) => {
@@ -38,6 +40,9 @@ const mutations = {
   },
   SETACTIVE (state, tree) {
     state.activeNodes = tree
+  },
+  SETTOTAL (state, total) {
+    state.total = total
   }
 }
 
@@ -47,6 +52,9 @@ const actions = {
   },
   setActive ({commit}, tree) {
     commit('SETACTIVE', tree)
+  },
+  setTotal ({commit}, total) {
+    commit('SETTOTAL', total)
   }
 }
 

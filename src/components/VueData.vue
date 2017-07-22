@@ -35,6 +35,7 @@
       <button @click="onClick">Test</button>
     </div>
   </div>
+  <span> {{ total }} </span>
   <tree-view :tree="tree">
   </tree-view>
 </div>
@@ -46,6 +47,7 @@ import {
   mapGetters
 } from 'vuex'
 import axios from 'axios'
+import * as lib from '@/lib/values'
 
 import TreeView from './TreeView'
 
@@ -69,7 +71,12 @@ export default {
       year: 2016,
       selectedYear: 2016,
       beacat: ['discretionary'],
-      tree: {}
+      rawTree: {
+        total: 0,
+        tree: []
+      },
+      total: 0,
+      tree: []
     }
   },
 
@@ -96,85 +103,91 @@ export default {
   methods: {
     ...mapActions({
       setNodes: 'setNodes',
-      setActive: 'setActive'
+      setActive: 'setActive',
+      setTotal: 'setTotal'
     }),
 
-    onClick (evt) {
-      this.rslt = {
-        tree: {},
-        oldAgency: -1,
-        oldBureau: -1
-      }
-      let ary = this.rawData.filter(this.filterData)
-      ary.forEach(this.groupData, this)
-      console.log(this.rslt)
-      this.setActive(this.rslt.tree)
-      this.tree = this.rslt.tree
+    sortSum (a, b) {
+      if (a.sum > b.sum) { return -1 }
+      if (a.sum < b.sum) { return 1 }
+      return 0
     },
 
-    groupData (itm, idx) {
-      let rslt = this.rslt
-      let tree = rslt.tree
-      let val = itm[this.selectedYear.toString()]
-      let acode = itm.agencycode
-      let bcode = itm.bureaucode
-      let ccode = itm.acctcode
-      let id = itm._id
-      if (acode !== rslt.oldAgency) {
-        tree[acode] = {
-          code: itm.agencycode,
-          name: itm.agencyname,
-          sum: val,
-          idx: idx,
-          children: {},
-          _id: id
+    onClick (evt) {
+      let ary = this.rawData
+      let rslt = this.groupData(ary, this.filterData)
+      console.log(rslt)
+      this.tree = rslt.tree
+      this.setTotal(rslt.total)
+    },
+
+    groupData (nodes, filterCB) {
+      let map = {}
+      let tree = []
+//      let active = []
+      let node
+      let total = 0
+      nodes.forEach((itm, idx) => {
+        if (!filterCB(itm)) {
+          return
         }
-        tree[acode].children[bcode] = {
-          code: itm.bureaucode,
-          name: itm.bureauname,
-          sum: val,
-          idx: idx,
-          children: {},
-          _id: id
+
+        node = itm
+        let id = node._id
+        let val = node[this.selectedYear.toString()]
+        total += val
+        if (!map[node.agencycode]) {
+          let tmp = map[node.agencycode] = {
+            name: node.agencyname,
+            code: node.agencycode,
+            sum: 0,
+            chld: {},
+            _id: id + 'A'
+          }
+          tree.push(tmp)
         }
-        tree[acode].children[bcode].children[ccode] = {
-          code: itm.acctcode,
-          name: itm.acctname,
-          sum: val,
-          idx: idx,
-          _id: id
+        map[node.agencycode].sum += val
+        if (!map[node.agencycode].chld[node.bureaucode]) {
+          map[node.agencycode].chld[node.bureaucode] = {
+            name: node.bureauname,
+            parent: id + 'A',
+            code: node.bureaucode,
+            sum: 0,
+            chld: [],
+            _id: id + 'B'
+          }
         }
-        rslt.oldAgency = itm.agencycode
-        rslt.oldBureau = itm.bureaucode
-      } else if (bcode !== rslt.oldBureau) {
-        tree[acode].sum += val
-        tree[acode].children[bcode] = {
-          code: itm.bureaucode,
-          name: itm.bureauname,
+        map[node.agencycode].chld[node.bureaucode].sum += val
+        map[node.agencycode].chld[node.bureaucode].chld.push({
+          name: node.acctname,
           sum: val,
-          idx: idx,
-          children: {},
-          _id: id
-        }
-        tree[acode].children[bcode].children[ccode] = {
-          code: itm.acctcode,
-          name: itm.acctname,
-          sum: val,
-          idx: idx,
-          _id: id
-        }
-        rslt.oldBureau = itm.bureaucode
-      } else {
-        tree[acode].sum += val
-        tree[acode].children[bcode].sum += val
-        tree[acode].children[bcode].children[ccode] = {
-          code: itm.acctcode,
-          name: itm.acctname,
-          sum: val,
-          idx: idx,
-          _id: id
+          parent: id + 'B',
+          code: node.acctcode,
+          _id: node._id,
+          idx: idx
+        })
+      })
+      this.setTotal(total)
+      tree.sort((a, b) => this.sortSum(a, b))
+      for (let a of tree) {
+        a.sum = lib.toPercent(a.sum, total)
+        let achld = Object.values(a.chld)
+        achld.sort((a, b) => this.sortSum(a, b))
+        a.chld = achld
+        for (let b of achld) {
+          b.sum = lib.toPercent(b.sum, total)
+          let bchld = b.chld
+          bchld.sort((a, b) => this.sortSum(a, b))
+          b.chld = bchld
+          for (let c of bchld) {
+            c.sum = lib.toPercent(c.sum, total)
+          }
         }
       }
+
+      this.rawTree.total = total
+      this.rawTree.tree = tree
+      return {total: total, tree: tree}
     },
 
     filterData (itm, idx) {
@@ -188,6 +201,7 @@ export default {
       if (itm[this.selectedYear.toString()] === 0) {
         return false
       }
+      this.total += itm[this.selectedYear.toString()]
       return true
     },
 
