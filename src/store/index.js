@@ -16,14 +16,7 @@ const state = {
   total: 0,
   selectedNode: null,
   hoverNode: null,
-  tree: {
-    name: '',
-    sum: 0,
-    prnt: null,
-    chld: [],
-    idx: -1,
-    val: 0
-  }
+  tree: []
 }
 
 const getters = {
@@ -60,6 +53,12 @@ const mutations = {
   },
   SETTREE (state, tree) {
     state.tree = tree
+  },
+  SETSELECT (state, select) {
+    if (state.selectedNode) {
+      // unselect it
+      state.selectedNode = select
+    }
   }
 }
 
@@ -75,6 +74,9 @@ const actions = {
   },
   setTree ({commit}, tree) {
     commit('SETTREE', tree)
+  },
+  setSelected ({commit}, select) {
+    commit('SETSELECT', select)
   }
 }
 

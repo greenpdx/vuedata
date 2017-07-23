@@ -7,7 +7,7 @@
           <span v-show="!expanded">&#9658;</span>
         </div>
         <div class="tvn-line" @click="selClick">
-          <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
+          <span class="tvn-amount"> {{ toMoney(n.sum) / 1000 }}</span>
           <span class="tvn-name"> {{ n.name }} </span>
         </div>
         <slider-node v-if="selected" :node="node"></slider-node>
@@ -20,7 +20,7 @@
       <div v-else>
         <div class="tvn-line" @click="selClick">
           <span class="noexpand">&#9866;</span>
-          <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
+          <span class="tvn-amount"> {{ toMoney(n.sum) / 1000 }}</span>
           <span class="tvn-name"> {{ n.name }} </span>
         </div>
         <slider-node v-if="selected" :node="node"></slider-node>
@@ -31,8 +31,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import * as lib from '@/lib/values'
+import { mapGetters, mapActions } from 'vuex'
+import Node from '@/api/Node'
+
 import SliderNode from './SliderNode'
 
 export default {
@@ -65,8 +66,13 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      setSelected: 'setSelected',
+      setHover: 'setHover'
+    }),
     selClick () {
-      console.log('sel', this.node._id)
+      console.log('sel', Object.assign({}, this.node))
+
       this.selected = !this.selected
     },
     onExpand () {
@@ -78,7 +84,7 @@ export default {
       }
     },
     toMoney (val) {
-      return Math.floor(lib.fromPercent(val, this.total) + 0.00001)
+      return Math.floor(Node.fromPercent(val, this.total) + 0.00001)
     }
   },
 
@@ -93,14 +99,14 @@ export default {
       return this.node
     },
     hasChildren: function () {
-      if (!this.node.chld) {
+      if (!this.node.children) {
         return false
       }
-      return (this.node.chld.length !== 0)
+      return (this.node.children.length !== 0)
     },
     nodes: function () {
 //      console.log('TVNnodes', this.node.name, this.node.chld)
-      return this.node.chld
+      return this.node.children
     },
     indent: function () {
       let lvl = 'level0'

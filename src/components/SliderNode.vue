@@ -1,6 +1,6 @@
 <template>
   <div class="slider-node">
-    <span> {{ toMoney(tmpVal) }}</span>
+    <span> {{ toMoney(tmpVal) / 1000 }}</span>
     <input
       type="range"
       min="0"
@@ -12,7 +12,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import * as lib from '@/lib/values'
+import Node from '@/api/Node'
 
 export default {
   name: 'SliderNode',
@@ -44,7 +44,7 @@ export default {
 
   methods: {
     toMoney (val) {
-      return Math.floor(lib.fromPercent(val, this.total))
+      return Math.floor(Node.fromPercent(val, this.total))
     },
 
     onChg (evt) {
@@ -56,7 +56,9 @@ export default {
 
   watch: {
     node: function (val, old) {
-      console.log('watch', val.sum, old)
+      console.log('watch',
+        Object.assign({}, val),
+        Object.assign({}, old))
       this.tmpVal = val.sum
       this.defaultVal = val.sum
       this.max = Math.floor(val.sum * 1.2)
@@ -68,12 +70,13 @@ export default {
       total: 'total'
     }),
     n: function () {
+      console.log('N')
       this.tmpVal = this.node.sum
       this.defaultVal = this.node.sum
       return this.node
     },
     hasChildren: function () {
-      return (this.node.chld.length !== 0)
+      return (this.node.children.length !== 0)
     }
   }
 }

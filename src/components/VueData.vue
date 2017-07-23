@@ -49,8 +49,8 @@ import {
   mapGetters
 } from 'vuex'
 import axios from 'axios'
-import * as lib from '@/lib/values'
 
+import Node from '@/api/Node'
 import TreeView from './TreeView'
 
 export default {
@@ -134,70 +134,48 @@ export default {
     groupData (nodes, filterCB) {
       let map = {}
       let tree = []
-//      let active = []
-      let node
       let total = 0
+      Node.clrNodes()
       nodes.forEach((itm, idx) => {
         if (!filterCB(itm)) {
           return
         }
 
-        node = itm
-//        let id = node._id
-        let val = node[this.selectedYear.toString()]
+        let val = itm[this.selectedYear.toString()]
         total += val
         let parent = -1
-        if (!map[node.agencycode]) {
-          let tmp = map[node.agencycode] = {
-            name: node.agencyname,
-//            code: node.agencycode,
-            sum: 0,
-            chld: {},
-            idx: idx,
-            prnt: parent
-          }
+        if (!map[itm.agencycode]) {
+          let tmp = map[itm.agencycode] =
+            new Node(itm.agencyname, idx, parent)
           tree.push(tmp)
         }
-        parent = map[node.agencycode].idx
-        map[node.agencycode].sum += val
-        if (!map[node.agencycode].chld[node.bureaucode]) {
-          map[node.agencycode].chld[node.bureaucode] = {
-            name: node.bureauname,
-//            prnt: id + 'A',
-//            code: node.bureaucode,
-            sum: 0,
-            chld: [],
-            idx: idx,
-//            _id: id + 'B',
-            prnt: parent
-          }
+        parent = map[itm.agencycode].idx
+        map[itm.agencycode].sum += val
+        if (!map[itm.agencycode].children[itm.bureaucode]) {
+          map[itm.agencycode].children[itm.bureaucode] =
+            new Node(itm.bureauname, idx, parent)
         }
-        parent = map[node.agencycode].chld[node.bureaucode].idx
-        map[node.agencycode].chld[node.bureaucode].sum += val
-        map[node.agencycode].chld[node.bureaucode].chld.push({
-          name: node.acctname,
-          sum: val,
-          prnt: parent,
-//          code: node.acctcode,
-//          _id: node._id,
-          idx: idx,
-          chld: null
-        })
+        parent = map[itm.agencycode].children[itm.bureaucode].idx
+        map[itm.agencycode].children[itm.bureaucode].sum += val
+        let tmp = new Node(itm.acctname, idx, parent)
+        tmp.sum = val
+        map[itm.agencycode].children[itm.bureaucode].children.push(tmp)
       })
+
       this.setTotal(total)
       tree.sort((a, b) => this.sortSum(a, b))
       for (let a of tree) {
-        a.sum = lib.toPercent(a.sum, total)
-        let achld = Object.values(a.chld)
+        a.sum = Node.toPercent(a.sum, total)
+        let achld = Object.values(a.children)
         achld.sort((a, b) => this.sortSum(a, b))
-        a.chld = achld
+        a.children = achld
         for (let b of achld) {
-          b.sum = lib.toPercent(b.sum, total)
-          let bchld = b.chld
+          b.sum = Node.toPercent(b.sum, total)
+          let bchld = b.children
           bchld.sort((a, b) => this.sortSum(a, b))
-          b.chld = bchld
+          b.children = bchld
           for (let c of bchld) {
-            c.sum = lib.toPercent(c.sum, total)
+            c.sum = Node.toPercent(c.sum, total)
           }
         }
       }
