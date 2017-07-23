@@ -30,28 +30,25 @@ export default {
 
   data () {
     return {
-      selectedNode: null
+      nodes: []
     }
   },
 
   created () {
+    this.nodes = this.tree
+    console.log('tree', this.nodes.length)
   },
 
   methods: {
   },
 
   updated () {
-    this.nodes = this.tree
   },
 
   computed: {
     ...mapGetters({
       total: 'total'
-    }),
-
-    nodes: function () {
-      return this.tree
-    }
+    })
   }
 }
 </script>

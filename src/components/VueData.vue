@@ -37,7 +37,7 @@
   </div>
   <div class='tree-view'>
     <span> {{ total }} </span>
-    <tree-view :tree="tree">
+    <tree-view v-if="tree" :tree="tree">
     </tree-view>
   </div>
 </div>
@@ -78,7 +78,7 @@ export default {
         tree: []
       },
       total: 0,
-      tree: []
+      tree: null
     }
   },
 
@@ -125,7 +125,7 @@ export default {
       let ary = this.rawData
       this.total = 0
       let rslt = this.groupData(ary, this.filterData)
-      console.log(rslt)
+//      console.log(rslt)
       this.setTree(rslt.tree)
       this.tree = rslt.tree
       this.setTotal(rslt.total)
@@ -242,7 +242,7 @@ export default {
 
   computed: {
     ...mapGetters([
-      'nodes',
+      'rawIds',
       'rawData',
       'getNodeByIdx',
       'getNodeByKey'
@@ -250,7 +250,7 @@ export default {
 
     keys: function () {
       let ary = this.dataLoaded
-      for (let id in this.nodes) {
+      for (let id in this.rawIds) {
         ary.push(id)
       }
       this.selectedKey = ary[0]
@@ -271,6 +271,7 @@ export default {
 }
 .tree-view {
   display: inline-block;
+  margin-left: 1em;
 }
 h1,
 h2 {

@@ -7,8 +7,8 @@
           <span v-show="!expanded">&#9658;</span>
         </div>
         <div class="tvn-line" @click="selClick">
-          <span class="tvn-amount"> {{ toMoney(n.sum) / 1000 }}</span>
-          <span class="tvn-name"> {{ n.name }} </span>
+          <span class="tvn-amount"> {{ toMoney(node.sum) / 1000 }}</span>
+          <span class="tvn-name"> {{ node.name }} </span>
         </div>
         <slider-node v-if="selected" :node="node"></slider-node>
         <div v-if="expanded">
@@ -20,8 +20,8 @@
       <div v-else>
         <div class="tvn-line" @click="selClick">
           <span class="noexpand">&#9866;</span>
-          <span class="tvn-amount"> {{ toMoney(n.sum) / 1000 }}</span>
-          <span class="tvn-name"> {{ n.name }} </span>
+          <span class="tvn-amount"> {{ toMoney(node.sum) / 1000 }}</span>
+          <span class="tvn-name"> {{ node.name }} </span>
         </div>
         <slider-node v-if="selected" :node="node"></slider-node>
       </div>
@@ -53,12 +53,16 @@ export default {
     return {
       selected: false,
       expanded: false,
-      name: ''
+      name: '',
+      hasChildren: false
     }
   },
 
   created () {
-
+    this.name = this.node.name
+    this.children = this.node.children
+    this.hasChildren = (this.children.length > 0)
+    console.log('TN', this.children.length, this.hasChildren)
   },
 
   updated () {
@@ -76,7 +80,7 @@ export default {
       this.selected = !this.selected
     },
     onExpand () {
-      console.log(this.n.name)
+      console.log(this.node.name)
       if (this.expanded) {
         this.expanded = false
       } else {
@@ -94,19 +98,12 @@ export default {
       'rawData',
       'getNodeByIdx'
     ]),
-    n: function () {
-//      console.log('NEW', this.node.name, this.node.chld)
-      return this.node
-    },
-    hasChildren: function () {
-      if (!this.node.children) {
-        return false
-      }
-      return (this.node.children.length !== 0)
-    },
+//    hasChildren: function () {
+//      return (this.children.length > 0)
+//    },
     nodes: function () {
 //      console.log('TVNnodes', this.node.name, this.node.chld)
-      return this.node.children
+      return this.children
     },
     indent: function () {
       let lvl = 'level0'

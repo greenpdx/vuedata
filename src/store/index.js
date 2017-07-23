@@ -11,7 +11,7 @@ const debug = process.env.NODE_ENV !== 'production'
 
 const state = {
   dataNodes: [],
-  nodes: {},
+  rawIds: {},
   activeNodes: {},
   total: 0,
   selectedNode: null,
@@ -21,7 +21,7 @@ const state = {
 
 const getters = {
   total: state => state.total,
-  nodes: state => state.nodes,
+  rawIds: state => state.rawIds,
   rawData: state => state.dataNodes,
   getNodeByIdx: state => (idx) => {
     return state.dataNodes[idx]
@@ -41,7 +41,7 @@ const mutations = {
     if (state.dataNodes.length === 0) {
       state.dataNodes = nodes
       nodes.forEach(function (itm, idx) {
-        state.nodes[itm._id] = {idx: idx}
+        state.rawIds[itm._id] = {idx: idx}
       })
     }
   },

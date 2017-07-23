@@ -1,6 +1,6 @@
 <template>
   <div class="slider-node">
-    <span> {{ toMoney(tmpVal) / 1000 }}</span>
+    <span> {{ toMoney(tmpVal) }}</span>
     <input
       type="range"
       min="0"
@@ -27,24 +27,25 @@ export default {
   data () {
     return {
       min: 0,
-      max: Math.floor(this.defaultVal * 1.2),
+      max: 0,
       tmpVal: 0,
       defaultVal: 0
     }
   },
 
   created () {
-
+    this.defaultVal = this.node.sum
+    this.tmpVal = this.node.sum
+    this.max = this.defaultVal * 1.25
   },
 
   updated () {
-    console.log('update')
-//    this.defaultVal = this.node.sum
+
   },
 
   methods: {
     toMoney (val) {
-      return Math.floor(Node.fromPercent(val, this.total))
+      return Math.floor(Node.fromPercent(val, this.total) / 1000)
     },
 
     onChg (evt) {
@@ -59,9 +60,6 @@ export default {
       console.log('watch',
         Object.assign({}, val),
         Object.assign({}, old))
-      this.tmpVal = val.sum
-      this.defaultVal = val.sum
-      this.max = Math.floor(val.sum * 1.2)
     }
   },
 
@@ -69,12 +67,6 @@ export default {
     ...mapGetters({
       total: 'total'
     }),
-    n: function () {
-      console.log('N')
-      this.tmpVal = this.node.sum
-      this.defaultVal = this.node.sum
-      return this.node
-    },
     hasChildren: function () {
       return (this.node.children.length !== 0)
     }

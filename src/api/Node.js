@@ -20,6 +20,7 @@ export default class Node {
 //    this.$on('chgParent', this.chgParent)
 //    this.$on('chgChild', this.chgChild)
     this.lidx = _active.push(this) - 1
+    this.children = []
   }
 
   static clrNodes () {
