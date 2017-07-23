@@ -106,7 +106,8 @@ export default {
     ...mapActions({
       setNodes: 'setNodes',
       setActive: 'setActive',
-      setTotal: 'setTotal'
+      setTotal: 'setTotal',
+      setTree: 'setTree'
     }),
 
     onSelect (evt) {
@@ -125,6 +126,7 @@ export default {
       this.total = 0
       let rslt = this.groupData(ary, this.filterData)
       console.log(rslt)
+      this.setTree(rslt.tree)
       this.tree = rslt.tree
       this.setTotal(rslt.total)
     },

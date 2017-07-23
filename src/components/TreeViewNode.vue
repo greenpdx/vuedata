@@ -9,8 +9,8 @@
         <div class="tvn-line" @click="selClick">
           <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
           <span class="tvn-name"> {{ n.name }} </span>
-          <slider-node v-show="selected" :node="node"></slider-node>
         </div>
+        <slider-node v-if="selected" :node="node"></slider-node>
         <div v-if="expanded">
           <div v-for="node in nodes">
             <tree-view-node :node="node" :level="level + 1"></tree-view-node>
@@ -22,8 +22,8 @@
           <span class="noexpand">&#9866;</span>
           <span class="tvn-amount"> {{ toMoney(n.sum) }}</span>
           <span class="tvn-name"> {{ n.name }} </span>
-          <slider-node v-show="selected" :node="node"></slider-node>
         </div>
+        <slider-node v-if="selected" :node="node"></slider-node>
       </div>
     </div>
     <br/>
@@ -104,7 +104,7 @@ export default {
     },
     indent: function () {
       let lvl = 'level0'
-      console.log('indent', this.node.name, this.level)
+//      console.log('indent', this.node.name, this.level)
       switch (this.level) {
         case 2:
           lvl = 'level2'

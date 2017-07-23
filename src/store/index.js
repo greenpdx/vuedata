@@ -15,7 +15,15 @@ const state = {
   activeNodes: {},
   total: 0,
   selectedNode: null,
-  hoverNode: null
+  hoverNode: null,
+  tree: {
+    name: '',
+    sum: 0,
+    prnt: null,
+    chld: [],
+    idx: -1,
+    val: 0
+  }
 }
 
 const getters = {
@@ -28,7 +36,11 @@ const getters = {
   getNodeByKey: state => (key) => {
     return state.dataNodes[state.nodes[key].idx]
   },
-  getActiveNodes: state => state.activeNodes
+  getActiveNodes: state => state.activeNodes,
+  getTree: state => state.tree,
+  getTreeByIdx: state => (idx) => {
+    return state.tree[idx]
+  }
 }
 
 const mutations = {
@@ -45,6 +57,9 @@ const mutations = {
   },
   SETTOTAL (state, total) {
     state.total = total
+  },
+  SETTREE (state, tree) {
+    state.tree = tree
   }
 }
 
@@ -57,6 +72,9 @@ const actions = {
   },
   setTotal ({commit}, total) {
     commit('SETTOTAL', total)
+  },
+  setTree ({commit}, tree) {
+    commit('SETTREE', tree)
   }
 }
 
