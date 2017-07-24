@@ -57,13 +57,15 @@ export default {
       selected: false,
       expanded: false,
       name: '',
-      hasChildren: false
+      hasChildren: false,
+      total: 0
     }
   },
 
   created () {
     this.name = this.node.name
     this.node.vue = this
+    this.total = this.node.total
     this.children = this.node.children
     this.hasChildren = (this.children.length > 0)
     this.$on('chgChild', this.chgValue)
@@ -98,7 +100,6 @@ export default {
       chld.forEach((itm, idx) => {
         if (itm.$options._componentTag === 'tree-view-node') {
           itm.$emit('chgChild', dif)
-          console.log('chgSlider', dif)
         }
       })
     },
@@ -122,7 +123,6 @@ export default {
 
   computed: {
     ...mapGetters([
-      'total',
       'rawData',
       'getNodeByIdx'
     ]),

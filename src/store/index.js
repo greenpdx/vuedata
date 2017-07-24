@@ -5,7 +5,7 @@ import createLogger from 'vuex/dist/logger'
 
 Vue.use(Vuex)
 
-import { node } from './modules/node'
+// import { node } from './modules/node'
 
 const debug = process.env.NODE_ENV !== 'production'
 
@@ -109,7 +109,7 @@ const actions = {
 }
 
 const modules = {
-  node: node
+//  node: node
 }
 
 // const strict = debug

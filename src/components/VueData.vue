@@ -29,15 +29,14 @@
       </fieldset>
       <div class="chklist">
         <select @change="onSelect($event)" class="chkinput" v-model="year">
-            <option class="chkinput" v-for="n in range(1976,2017)">{{ n }}</option>
-          </select>
+          <option class="chkinput" v-for="n in range(1976,2017)">{{ n }}</option>
+        </select>
       </div>
       <button @click="onClick">Test</button>
     </div>
   </div>
   <div class='tree-view'>
-    <span> {{ total }} </span>
-    <tree-view v-if="tree" :tree="tree">
+    <tree-view v-if="top" :top="top">
     </tree-view>
   </div>
 </div>
@@ -78,7 +77,8 @@ export default {
         tree: []
       },
       total: 0,
-      tree: null
+      top: null,
+      tree: []
     }
   },
 
@@ -125,27 +125,31 @@ export default {
     onClick (evt) {
       let ary = this.rawData
       this.total = 0
+      this.top = null
+      this.tree = null
       let rslt = this.groupData(ary, this.filterData)
-//      console.log(rslt)
-      this.setTree(rslt.tree)
-      this.tree = rslt.tree
-      this.addActiveNode(rslt.tree[0])
-      this.setTotal(rslt.total)
+      console.log(rslt.total)
+//      this.setTotal(rslt.total)
+      this.top = rslt.tree
+//      this.setTotal(total)
+      this.tree = rslt.tree.children
+      this.setTree(this.tree)
+//      this.top = new Node('Total', -1, -1)
     },
 
     groupData (nodes, filterCB) {
       let map = {}
-      let tree = []
       let total = 0
-      Node.clrNodes()
+//      Node.clrNodes()
+      let top = new Node('Total', 0, -1)
+      let tree = top.children
       nodes.forEach((itm, idx) => {
         if (!filterCB(itm)) {
           return
         }
-
         let val = itm[this.selectedYear.toString()]
         total += val
-        let parent = -1
+        let parent = 0
         if (!map[itm.agencycode]) {
           let tmp = map[itm.agencycode] =
             new Node(itm.agencyname, idx, parent)
@@ -164,27 +168,30 @@ export default {
         map[itm.agencycode].children[itm.bureaucode].children.push(tmp)
       })
 
-      this.setTotal(total)
+      top.total = total
+      top.value = Node.toPercent(total / 2)
+      top.default = Node.toPercent(total)
+
       tree.sort((a, b) => this.sortSum(a, b))
       for (let a of tree) {
-        a.sum = Node.toPercent(a.sum, total)
+        a.sum = Node.toPercent(a.sum)
         let achld = Object.values(a.children)
         achld.sort((a, b) => this.sortSum(a, b))
         a.children = achld
         for (let b of achld) {
-          b.sum = Node.toPercent(b.sum, total)
+          b.sum = Node.toPercent(b.sum)
           let bchld = b.children
           bchld.sort((a, b) => this.sortSum(a, b))
           b.children = bchld
           for (let c of bchld) {
-            c.sum = Node.toPercent(c.sum, total)
+            c.sum = Node.toPercent(c.sum)
           }
         }
       }
 
       this.rawTree.total = total
       this.rawTree.tree = tree
-      return {total: total, tree: tree}
+      return {total: total, tree: top}
     },
 
     filterData (itm, idx) {
@@ -196,6 +203,9 @@ export default {
         return false
       }
       if (itm[this.selectedYear.toString()] === 0) {
+        return false
+      }
+      if (itm[this.selectedYear.toString()] < 0) {
         return false
       }
       this.total += itm[this.selectedYear.toString()]

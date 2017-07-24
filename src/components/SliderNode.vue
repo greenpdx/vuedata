@@ -7,6 +7,7 @@
       v-bind:max="max"
       v-bind:value="node.value"
       v-on:input="onChg($event)">
+    <button @click="resetVal">Reset</button>
   </div>
 </template>
 
@@ -44,6 +45,10 @@ export default {
   },
 
   methods: {
+    resetVal () {
+      this.node.value = this.node.default
+      this.$parent.$emit('chgChild', 1)
+    },
     toMoney (val) {
       return Math.floor(Node.fromPercent(val, this.total) / 1000)
     },
@@ -79,4 +84,7 @@ export default {
 </script>
 
 <style scoped>
+.slider-node {
+  float: left;
+}
 </style>

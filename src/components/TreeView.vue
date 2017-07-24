@@ -1,5 +1,14 @@
 <template>
   <div class="tree-view">
+    <div v-if="top" class="tv-node">
+      <span>Total</span><span> {{ Math.floor(total / 1000) }} </span><br>
+      <input
+        type="range"
+        min="-10000"
+        max="10000"
+        v-bind:value="difVal">
+      <span>{{ difVal }}</span>
+    </div>
     <div v-for="node in nodes" class="tv-node">
         <tree-view-node :node="node">
           <!-- slider-node v-show="selected":node="node"></slider-node -->
@@ -13,42 +22,64 @@
 import { mapGetters } from 'vuex'
 // import * as lib from '@/lib/values'
 
+import Node from '@/api/Node'
+import SliderNode from './SliderNode'
 import TreeViewNode from './TreeViewNode'
 
 export default {
   name: 'TreeView',
   components: {
-    TreeViewNode
+    TreeViewNode,
+    SliderNode
   },
 
   props: {
-    tree: {
+    top: {}
+//    tree: {}
 //      type: Object,
-      required: true
-    }
+//      required: true
+//    }
   },
 
   data () {
     return {
-      nodes: []
+      nodes: [],
+      node: null,
+      total: 0,
+      difVal: 0
     }
   },
 
+  beforeCreate () {
+//    this.top = new Node('Total', -1, -1)
+//    this.top.default = this.top.value = this.total
+  },
+
   created () {
-    this.nodes = this.tree
+    this.nodes = this.top.children
+    this.total = this.top.total
+    this.difVal = 0
+    this.$on('chgParent', this.chgValue)
     console.log('tree', this.nodes.length)
   },
 
   methods: {
+    chgValue (dif) {
+      this.top.difVal = this.total * (1 - dif)
+      console.log(dif)
+    },
+    toMoney (val) {
+      return Math.floor(Node.fromPercent(val, this.total) + 0.00001)
+    }
+
   },
 
   updated () {
-    this.nodes = this.tree
+    this.nodes = this.top.children
   },
 
   computed: {
     ...mapGetters({
-      total: 'total'
     })
   }
 }
@@ -56,7 +87,7 @@ export default {
 
 <style scoped>
 .tree-view {
-  display: block;
+  display: inline-block;
   width: auto;
   height: 600px;
 }
@@ -64,5 +95,8 @@ export default {
   display: block;
   float: left;
   width: 45em;
+},
+.top-slide {
+  float: left;
 }
 </style>

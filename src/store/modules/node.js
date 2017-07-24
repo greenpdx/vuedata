@@ -10,10 +10,10 @@ const state = {
 }
 
 const getters = {
-  name: state => state.node.name,
-  parent: state => state.node.parent,
-  children: state => state.node.children,
-  selected: state => state.node.selected,
+  name: state => state.name,
+  parent: state => state.parent,
+  children: state => state.children,
+  selected: state => state.selected,
   hover: state => state.hover,
   index: state => state.index,
   default: state => state.default,

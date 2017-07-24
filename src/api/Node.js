@@ -1,27 +1,8 @@
 // import Vue from 'vue'
 
 var _active = []
-/*
-var NodeVue = Vue.extend({
-  name: 'NodeVue',
+var _total = 0
 
-  created () {
-    this.$on('chgParent', this.chgParent)
-    this.$on('chgChild', this.chgChild)
-  },
-  methods: {
-    chgParent (node, val) {
-
-    },
-    chgChild (node, val) {
-
-    },
-    chgData (val) {
-
-    }
-  }
-})
-*/
 export default class Node {
   static get ONE_VAL () {
     return (2 ** 30)
@@ -42,7 +23,7 @@ export default class Node {
 //    this.node = new NodeVue()
 //    this.$on('chgParent', this.chgParent)
 //    this.$on('chgChild', this.chgChild)
-    this.lidx = _active.push(this) - 1
+//    this.lidx = _active.push(this) - 1
     this.children = []
     this.test = _active
   }
@@ -56,6 +37,12 @@ export default class Node {
     return _active
   }
 
+  get total () {
+    return _total
+  }
+  set total (val) {
+    _total = val
+  }
   set sum (val) {
     this.default = val
     this.value = val
@@ -85,11 +72,11 @@ export default class Node {
 
   }
 
-  static toPercent (val, total) {
-    return (val * this.ONE_VAL / total)
+  static toPercent (val) {
+    return (val * this.ONE_VAL / _total)
   }
 
-  static fromPercent (pct, total) {
-    return (pct * total / this.ONE_VAL)
+  static fromPercent (pct) {
+    return (pct * _total / this.ONE_VAL)
   }
 }
