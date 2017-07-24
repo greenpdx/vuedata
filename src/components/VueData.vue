@@ -107,7 +107,8 @@ export default {
       setNodes: 'setNodes',
       setActive: 'setActive',
       setTotal: 'setTotal',
-      setTree: 'setTree'
+      setTree: 'setTree',
+      addActiveNode: 'addActiveNode'
     }),
 
     onSelect (evt) {
@@ -128,6 +129,7 @@ export default {
 //      console.log(rslt)
       this.setTree(rslt.tree)
       this.tree = rslt.tree
+      this.addActiveNode(rslt.tree[0])
       this.setTotal(rslt.total)
     },
 

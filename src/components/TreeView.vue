@@ -43,6 +43,7 @@ export default {
   },
 
   updated () {
+    this.nodes = this.tree
   },
 
   computed: {

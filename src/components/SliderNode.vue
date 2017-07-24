@@ -1,11 +1,11 @@
 <template>
   <div class="slider-node">
-    <span> {{ toMoney(tmpVal) }}</span>
+    <span> {{ toMoney(node.value) }}</span>
     <input
       type="range"
       min="0"
       v-bind:max="max"
-      v-bind:value="tmpVal"
+      v-bind:value="node.value"
       v-on:input="onChg($event)">
   </div>
 </template>
@@ -34,8 +34,8 @@ export default {
   },
 
   created () {
-    this.defaultVal = this.node.sum
-    this.tmpVal = this.node.sum
+    this.defaultVal = this.node.default
+    this.tmpVal = this.node.value
     this.max = this.defaultVal * 1.25
   },
 
@@ -51,7 +51,11 @@ export default {
     onChg (evt) {
       evt.preventDefault()
       evt.stopImmediatePropagation()
-      this.tmpVal = evt.target.value
+//      let node = this.node
+//      let comp = node.node
+      this.node.value = evt.target.value
+      let dif = this.node.value / this.node.default
+      this.$parent.$emit('chgChild', dif)
     }
   },
 

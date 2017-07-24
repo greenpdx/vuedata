@@ -1,5 +1,27 @@
-var _active = []
+// import Vue from 'vue'
 
+var _active = []
+/*
+var NodeVue = Vue.extend({
+  name: 'NodeVue',
+
+  created () {
+    this.$on('chgParent', this.chgParent)
+    this.$on('chgChild', this.chgChild)
+  },
+  methods: {
+    chgParent (node, val) {
+
+    },
+    chgChild (node, val) {
+
+    },
+    chgData (val) {
+
+    }
+  }
+})
+*/
 export default class Node {
   static get ONE_VAL () {
     return (2 ** 30)
@@ -17,15 +39,21 @@ export default class Node {
     this.name = name
     this.idx = idx
     this.parent = parent
+//    this.node = new NodeVue()
 //    this.$on('chgParent', this.chgParent)
 //    this.$on('chgChild', this.chgChild)
     this.lidx = _active.push(this) - 1
     this.children = []
+    this.test = _active
   }
 
   static clrNodes () {
     // clean up better
     _active = []
+  }
+
+  static getNodes () {
+    return _active
   }
 
   set sum (val) {
@@ -34,7 +62,7 @@ export default class Node {
   }
 
   get sum () {
-    return this.value
+    return this.default
   }
 
   chgChild (chg) {

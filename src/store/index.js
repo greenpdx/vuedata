@@ -5,16 +5,16 @@ import createLogger from 'vuex/dist/logger'
 
 Vue.use(Vuex)
 
-import nodes from './modules/nodes'
+import { node } from './modules/node'
 
 const debug = process.env.NODE_ENV !== 'production'
 
 const state = {
   dataNodes: [],
   rawIds: {},
-  activeNodes: {},
+  activeNodes: [],
   total: 0,
-  selectedNode: null,
+  selectNode: null,
   hoverNode: null,
   tree: []
 }
@@ -33,6 +33,12 @@ const getters = {
   getTree: state => state.tree,
   getTreeByIdx: state => (idx) => {
     return state.tree[idx]
+  },
+  getHoverNode: state => {
+    return state.hoverNode
+  },
+  getSelectedNode: state => {
+    return state.selectNode
   }
 }
 
@@ -45,7 +51,7 @@ const mutations = {
       })
     }
   },
-  SETACTIVE (state, tree) {
+  SETACTIVENODES (state, tree) {
     state.activeNodes = tree
   },
   SETTOTAL (state, total) {
@@ -55,10 +61,17 @@ const mutations = {
     state.tree = tree
   },
   SETSELECT (state, select) {
-    if (state.selectedNode) {
-      // unselect it
-      state.selectedNode = select
-    }
+    state.selectNode = select
+  },
+  SETHOVER (state, hover) {
+    state.hoverNode = hover
+  },
+  ADDACTIVENODE (state, node) {
+    state.activeNodes.push(node)
+  },
+  CLRACTIVE (state) {
+    // clean up better
+    state.activeNodes = []
   }
 }
 
@@ -66,7 +79,7 @@ const actions = {
   setNodes ({commit}, nodes) {
     commit('SETNODES', nodes)
   },
-  setActive ({commit}, tree) {
+  setActiveNodes ({commit}, tree) {
     commit('SETACTIVE', tree)
   },
   setTotal ({commit}, total) {
@@ -76,12 +89,27 @@ const actions = {
     commit('SETTREE', tree)
   },
   setSelected ({commit}, select) {
+    if (state.selectedNode && state.selectedNode !== select) {
+      commit('SETSELECT', null)
+    }
     commit('SETSELECT', select)
+  },
+  setHover ({commit}, node) {
+    if (state.hoverNode && state.hoverNode !== node) {
+      commit('SETHOVER', null)
+    }
+    commit('SETHOVER', node)
+  },
+  addActiveNode ({commit}, node) {
+    commit('ADDACTIVENODE', node)
+  },
+  clrActiveNodes ({commit}) {
+    commit('CLRACTIVE')
   }
 }
 
 const modules = {
-  nodes: nodes
+  node: node
 }
 
 // const strict = debug

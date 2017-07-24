@@ -7,11 +7,11 @@
           <span v-show="!expanded">&#9658;</span>
         </div>
         <div class="tvn-line" @click="selClick">
-          <span class="tvn-amount"> {{ toMoney(node.sum) / 1000 }}</span>
+          <span class="tvn-amount"> {{ Math.floor(toMoney(node.value) / 1000) }}</span>
           <span class="tvn-name"> {{ node.name }} </span>
         </div>
         <slider-node v-if="selected" :node="node"></slider-node>
-        <div v-if="expanded">
+        <div v-show="expanded">
           <div v-for="node in nodes">
             <tree-view-node :node="node" :level="level + 1"></tree-view-node>
           </div>
@@ -20,7 +20,7 @@
       <div v-else>
         <div class="tvn-line" @click="selClick">
           <span class="noexpand">&#9866;</span>
-          <span class="tvn-amount"> {{ toMoney(node.sum) / 1000 }}</span>
+          <span class="tvn-amount"> {{ Math.floor(toMoney(node.value) / 1000) }}</span>
           <span class="tvn-name"> {{ node.name }} </span>
         </div>
         <slider-node v-if="selected" :node="node"></slider-node>
@@ -35,9 +35,12 @@ import { mapGetters, mapActions } from 'vuex'
 import Node from '@/api/Node'
 
 import SliderNode from './SliderNode'
+// import NodeVue from '@/components/NodeVue'
 
 export default {
   name: 'TreeViewNode',
+//  mixins: [NodeVue],
+
   components: {
     SliderNode
   },
@@ -60,9 +63,12 @@ export default {
 
   created () {
     this.name = this.node.name
+    this.node.vue = this
     this.children = this.node.children
     this.hasChildren = (this.children.length > 0)
-    console.log('TN', this.children.length, this.hasChildren)
+    this.$on('chgChild', this.chgValue)
+    this.$on('chgParent', this.chgValue)
+//    console.log('TN', this.children.length, this.hasChildren)
   },
 
   updated () {
@@ -74,6 +80,28 @@ export default {
       setSelected: 'setSelected',
       setHover: 'setHover'
     }),
+    chgValue (dif) {
+      if (this.dif !== dif) {
+        this.dif = dif
+        this.node.value = this.node.default * dif
+        this.chgChild(dif)
+        this.chgParent(dif)
+      }
+    },
+    chgParent (dif) {
+      if (this.$parent) {
+        this.$parent.$emit('chgParent', dif)
+      }
+    },
+    chgChild (dif) {
+      let chld = this.$children
+      chld.forEach((itm, idx) => {
+        if (itm.$options._componentTag === 'tree-view-node') {
+          itm.$emit('chgChild', dif)
+          console.log('chgSlider', dif)
+        }
+      })
+    },
     selClick () {
       console.log('sel', Object.assign({}, this.node))
 
