@@ -46,6 +46,7 @@ export default class Node {
   set sum (val) {
     this.default = val
     this.value = val
+    this.lockVal = val
   }
 
   get sum () {

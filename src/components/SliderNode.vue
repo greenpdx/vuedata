@@ -1,19 +1,22 @@
 <template>
   <div class="slider-node">
-    <span> {{ toMoney(node.value) }}</span>
+    <span> {{ Math.floor(node.value / 1000 ) }}</span>
     <input
       type="range"
       min="0"
       v-bind:max="max"
       v-bind:value="node.value"
-      v-on:input="onChg($event)">
+      v-on:input="onChg($event)"
+      v-bind:disabled="locked">
+    <input type="checkbox" id="locknode" v-model="locked">
+    <label for="locknode">{{ lockname }}</label>
     <button @click="resetVal">Reset</button>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import Node from '@/api/Node'
+// import Node from '@/api/Node'
 
 export default {
   name: 'SliderNode',
@@ -30,13 +33,14 @@ export default {
       min: 0,
       max: 0,
       tmpVal: 0,
-      defaultVal: 0
+//      defaultVal: 0,
+      locked: false,
+      lockname: 'Lock'
     }
   },
 
   created () {
     this.defaultVal = this.node.default
-    this.tmpVal = this.node.value
     this.max = this.defaultVal * 1.25
   },
 
@@ -47,20 +51,15 @@ export default {
   methods: {
     resetVal () {
       this.node.value = this.node.default
-      this.$parent.$emit('chgChild', 1)
-    },
-    toMoney (val) {
-      return Math.floor(Node.fromPercent(val, this.total) / 1000)
+      this.$emit('chgParent', this.node.default, null)
     },
 
     onChg (evt) {
       evt.preventDefault()
       evt.stopImmediatePropagation()
-//      let node = this.node
-//      let comp = node.node
       this.node.value = evt.target.value
-      let dif = this.node.value / this.node.default
-      this.$parent.$emit('chgChild', dif)
+      console.log('inp', evt.target.value)
+      this.$emit('chgParent', evt.target.value, null)
     }
   },
 

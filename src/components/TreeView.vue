@@ -4,13 +4,15 @@
       <span>Total</span><span> {{ Math.floor(total / 1000) }} </span><br>
       <input
         type="range"
-        min="-10000"
-        max="10000"
+        min="-10000000"
+        max="10000000"
         v-bind:value="difVal">
       <span>{{ difVal }}</span>
     </div>
     <div v-for="node in nodes" class="tv-node">
-        <tree-view-node :node="node">
+        <tree-view-node
+          :node="node"
+          v-on:chgParent="chgValue">
           <!-- slider-node v-show="selected":node="node"></slider-node -->
         </tree-view-node>
         <br>
@@ -22,7 +24,7 @@
 import { mapGetters } from 'vuex'
 // import * as lib from '@/lib/values'
 
-import Node from '@/api/Node'
+// import Node from '@/api/Node'
 import SliderNode from './SliderNode'
 import TreeViewNode from './TreeViewNode'
 
@@ -64,14 +66,10 @@ export default {
   },
 
   methods: {
-    chgValue (dif) {
-      this.top.difVal = this.total * (1 - dif)
-      console.log(dif)
-    },
-    toMoney (val) {
-      return Math.floor(Node.fromPercent(val, this.total) + 0.00001)
+    chgValue (val, node) {
+      this.difVal = val
+      console.log(this.difVal)
     }
-
   },
 
   updated () {

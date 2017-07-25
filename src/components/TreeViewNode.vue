@@ -7,23 +7,33 @@
           <span v-show="!expanded">&#9658;</span>
         </div>
         <div class="tvn-line" @click="selClick">
-          <span class="tvn-amount"> {{ Math.floor(toMoney(node.value) / 1000) }}</span>
+          <span class="tvn-amount"> {{ Math.floor(node.value / 1000) }}</span>
           <span class="tvn-name"> {{ node.name }} </span>
         </div>
-        <slider-node v-if="selected" :node="node"></slider-node>
+        <slider-node
+          v-if="selected"
+          :node="node"
+          v-on:chgParent="chgParent"
+          v-on:chgChild="chgChild"></slider-node>
         <div v-show="expanded">
           <div v-for="node in nodes">
-            <tree-view-node :node="node" :level="level + 1"></tree-view-node>
+            <tree-view-node
+              :node="node"
+              :level="level + 1"></tree-view-node>
           </div>
         </div>
       </div>
       <div v-else>
         <div class="tvn-line" @click="selClick">
           <span class="noexpand">&#9866;</span>
-          <span class="tvn-amount"> {{ Math.floor(toMoney(node.value) / 1000) }}</span>
+          <span class="tvn-amount"> {{ Math.floor(node.value / 1000) }}</span>
           <span class="tvn-name"> {{ node.name }} </span>
         </div>
-        <slider-node v-if="selected" :node="node"></slider-node>
+        <slider-node
+          v-if="selected"
+          :node="node"
+          v-on:chgParent="chgParent"
+          v-on:chgChild="chgChild"></slider-node>
       </div>
     </div>
     <br/>
@@ -32,7 +42,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import Node from '@/api/Node'
+// import Node from '@/api/Node'
 
 import SliderNode from './SliderNode'
 // import NodeVue from '@/components/NodeVue'
@@ -58,7 +68,8 @@ export default {
       expanded: false,
       name: '',
       hasChildren: false,
-      total: 0
+      total: 0,
+      locked: false
     }
   },
 
@@ -68,8 +79,8 @@ export default {
     this.total = this.node.total
     this.children = this.node.children
     this.hasChildren = (this.children.length > 0)
-    this.$on('chgChild', this.chgValue)
-    this.$on('chgParent', this.chgValue)
+    this.$on('chgChild', this.chgChild)
+    this.$on('chgParent', this.chgParent)
 //    console.log('TN', this.children.length, this.hasChildren)
   },
 
@@ -82,24 +93,53 @@ export default {
       setSelected: 'setSelected',
       setHover: 'setHover'
     }),
-    chgValue (dif) {
-      if (this.dif !== dif) {
-        this.dif = dif
-        this.node.value = this.node.default * dif
-        this.chgChild(dif)
-        this.chgParent(dif)
+    chgValue (val, node) {
+      console.log('chgVal', this.node.name, val, node)
+      if (this.lockVal === 0) {
+        if (!this.hasChildren) {
+          return    // leaf locked
+        }
+        // change children only
+        return
       }
-    },
-    chgParent (dif) {
-      if (this.$parent) {
-        this.$parent.$emit('chgParent', dif)
+      if (val === this.val) {
+        return
       }
+      this.val = val
+      if (node !== null) {
+        this.node.value = val
+      }
+      this.chgChild(val, this.node)
+      this.chgParent(val, this.node)
+//      this.node.value = this.lockVal
+//      this.node.value = this.node.default + dif
+//      this.chgChild(val, null)
+//      if (node) {
+//        this.chgParent(val, node)
+//      }
     },
-    chgChild (dif) {
+    chgParent (val, node) {
+      console.log('Parent', val, node)
+      if (node === null) {
+        this.chgChild(val, this.node)
+      } else {
+        val = node.lockVal - val
+        this.node.value = this.node.lockVal = this.node.lockVal - val
+        console.log(val, this.node.lockVal, node.lockVal)
+      }
+//      if (this.$parent || node.parent !== -1) {
+      this.$parent.$emit('chgParent', val, this.node)
+//      }
+    },
+    chgChild (val, node) {
       let chld = this.$children
+      this.node.value = val
+
       chld.forEach((itm, idx) => {
+        val = itm.node.lockVal / node.lockVal * this.node.value
+        console.log(val, itm.node.lockVal, node.lockVal)
         if (itm.$options._componentTag === 'tree-view-node') {
-          itm.$emit('chgChild', dif)
+          itm.$emit('chgChild', val, this.node)
         }
       })
     },
@@ -115,9 +155,6 @@ export default {
       } else {
         this.expanded = true
       }
-    },
-    toMoney (val) {
-      return Math.floor(Node.fromPercent(val, this.total) + 0.00001)
     }
   },
 

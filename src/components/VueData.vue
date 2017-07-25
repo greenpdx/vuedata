@@ -169,23 +169,18 @@ export default {
       })
 
       top.total = total
-      top.value = Node.toPercent(total / 2)
-      top.default = Node.toPercent(total)
+      top.value = total / 2
+      top.default = total
 
       tree.sort((a, b) => this.sortSum(a, b))
       for (let a of tree) {
-        a.sum = Node.toPercent(a.sum)
         let achld = Object.values(a.children)
         achld.sort((a, b) => this.sortSum(a, b))
         a.children = achld
         for (let b of achld) {
-          b.sum = Node.toPercent(b.sum)
           let bchld = b.children
           bchld.sort((a, b) => this.sortSum(a, b))
           b.children = bchld
-          for (let c of bchld) {
-            c.sum = Node.toPercent(c.sum)
-          }
         }
       }
 
