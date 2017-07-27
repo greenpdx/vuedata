@@ -1,20 +1,18 @@
 <template>
   <div class="tree-view-node">
     <div class="tvn-node">
-      <div v-if="hasChildren" class="tvn-expand">
+      <div v-if="node.hasChildren" class="tvn-expand">
         <div v-bind:class="indent" @click="onExpand">
           <span v-show="expanded">&#9660;</span>
           <span v-show="!expanded">&#9658;</span>
         </div>
         <div class="tvn-line" @click="selClick">
-          <span class="tvn-amount"> {{ Math.floor(node.value / 1000) }}</span>
+          <span class="tvn-amount"> {{ node.showVal() }}</span>
           <span class="tvn-name"> {{ node.name }} </span>
         </div>
         <slider-node
           v-if="selected"
-          :node="node"
-          v-on:chgParent="chgParent"
-          v-on:chgChild="chgChild"></slider-node>
+          :node="node"></slider-node>
         <div v-show="expanded">
           <div v-for="node in nodes">
             <tree-view-node
@@ -26,14 +24,12 @@
       <div v-else>
         <div class="tvn-line" @click="selClick">
           <span class="noexpand">&#9866;</span>
-          <span class="tvn-amount"> {{ Math.floor(node.value / 1000) }}</span>
+          <span class="tvn-amount"> {{ node.showVal() }}</span>
           <span class="tvn-name"> {{ node.name }} </span>
         </div>
         <slider-node
           v-if="selected"
-          :node="node"
-          v-on:chgParent="chgParent"
-          v-on:chgChild="chgChild"></slider-node>
+          :node="node"></slider-node>
       </div>
     </div>
     <br/>
@@ -42,7 +38,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-// import Node from '@/api/Node'
+import Node from '@/api/Node'
 
 import SliderNode from './SliderNode'
 // import NodeVue from '@/components/NodeVue'
@@ -56,7 +52,9 @@ export default {
   },
 
   props: {
-    node: {},
+    node: {
+      type: Node
+    },
     level: {
       default: 0
     }
@@ -67,7 +65,6 @@ export default {
       selected: false,
       expanded: false,
       name: '',
-      hasChildren: false,
       total: 0,
       locked: false
     }
@@ -75,17 +72,14 @@ export default {
 
   created () {
     this.name = this.node.name
-    this.node.vue = this
+    this.node.vue.push(this)
     this.total = this.node.total
     this.children = this.node.children
-    this.hasChildren = (this.children.length > 0)
-    this.$on('chgChild', this.chgChild)
-    this.$on('chgParent', this.chgParent)
 //    console.log('TN', this.children.length, this.hasChildren)
   },
 
   updated () {
-
+    console.log('tnodeUpdate')
   },
 
   methods: {
@@ -119,7 +113,8 @@ export default {
 //      }
     },
     chgParent (val, node) {
-      console.log('Parent', val, node)
+      this.node.chgParent(val, node)
+/*      console.log('Parent', val, node)
       if (node === null) {
         this.chgChild(val, this.node)
       } else {
@@ -129,10 +124,11 @@ export default {
       }
 //      if (this.$parent || node.parent !== -1) {
       this.$parent.$emit('chgParent', val, this.node)
-//      }
+//      } */
     },
     chgChild (val, node) {
-      let chld = this.$children
+      this.node.chgChild(val, node)
+/*      let chld = this.$children
       this.node.value = val
 
       chld.forEach((itm, idx) => {
@@ -141,7 +137,7 @@ export default {
         if (itm.$options._componentTag === 'tree-view-node') {
           itm.$emit('chgChild', val, this.node)
         }
-      })
+      }) */
     },
     selClick () {
       console.log('sel', Object.assign({}, this.node))

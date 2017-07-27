@@ -1,11 +1,11 @@
 <template>
   <div class="slider-node">
-    <span> {{ Math.floor(node.value / 1000 ) }}</span>
+    <span> {{ node.showVal(value) }}</span>
     <input
       type="range"
       min="0"
       v-bind:max="max"
-      v-bind:value="node.value"
+      v-bind:value="value"
       v-on:input="onChg($event)"
       v-bind:disabled="locked">
     <input type="checkbox" id="locknode" v-model="locked">
@@ -16,15 +16,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-// import Node from '@/api/Node'
+import Node from '@/api/Node'
 
 export default {
   name: 'SliderNode',
 
   props: {
     node: {
-      type: Object,
-      default: {}
+      type: Node
     }
   },
 
@@ -35,31 +34,33 @@ export default {
       tmpVal: 0,
 //      defaultVal: 0,
       locked: false,
-      lockname: 'Lock'
+      lockname: 'Lock',
+      value: 0
     }
   },
 
   created () {
     this.defaultVal = this.node.default
+    this.value = this.node.value
     this.max = this.defaultVal * 1.25
   },
 
   updated () {
-
+    this.value = this.node.value
   },
 
   methods: {
     resetVal () {
-      this.node.value = this.node.default
-      this.$emit('chgParent', this.node.default, null)
+      this.value = this.node.default
+      this.node.chgValue(this.value)
     },
 
     onChg (evt) {
       evt.preventDefault()
       evt.stopImmediatePropagation()
-      this.node.value = evt.target.value
+      this.value = evt.target.value
       console.log('inp', evt.target.value)
-      this.$emit('chgParent', evt.target.value, null)
+      this.node.chgValue(evt.target.value)
     }
   },
 
@@ -74,10 +75,7 @@ export default {
   computed: {
     ...mapGetters({
       total: 'total'
-    }),
-    hasChildren: function () {
-      return (this.node.children.length !== 0)
-    }
+    })
   }
 }
 </script>

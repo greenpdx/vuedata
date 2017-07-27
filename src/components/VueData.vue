@@ -3,6 +3,12 @@
   <h1>{{ msg }}</h1>
   <div class="hrow">
     <div>
+      <input type="radio" id="real" name="testData" value="false" v-model="testData" checked="true">
+      <label for="real">Real data</label>
+      <input type="radio" id="test" name="testData" value="true" v-model="testData">
+      <label for="test">Test data</label>
+    </div>
+    <div>
       <select v-model="index">
           <option v-for="n in range(0,9)">{{ n }}</option>
         </select>
@@ -78,14 +84,16 @@ export default {
       },
       total: 0,
       top: null,
-      tree: []
+      tree: [],
+      testData: false
     }
   },
 
   beforeCreate () {},
 
   created () {
-    this.loadData()
+    this.testData = false
+//    this.loadData()
   },
 
   beforeMount () {
@@ -123,6 +131,12 @@ export default {
     },
 
     onClick (evt) {
+      if (this.testData) {
+        this.top = this.rawTree.top
+        this.tree = this.top.children
+        this.setTree(this.tree)
+        return
+      }
       let ary = this.rawData
       this.total = 0
       this.top = null
@@ -149,19 +163,19 @@ export default {
         }
         let val = itm[this.selectedYear.toString()]
         total += val
-        let parent = 0
+        let parent = top
         if (!map[itm.agencycode]) {
           let tmp = map[itm.agencycode] =
             new Node(itm.agencyname, idx, parent)
           tree.push(tmp)
         }
-        parent = map[itm.agencycode].idx
+        parent = map[itm.agencycode]
         map[itm.agencycode].sum += val
         if (!map[itm.agencycode].children[itm.bureaucode]) {
           map[itm.agencycode].children[itm.bureaucode] =
             new Node(itm.bureauname, idx, parent)
         }
-        parent = map[itm.agencycode].children[itm.bureaucode].idx
+        parent = map[itm.agencycode].children[itm.bureaucode]
         map[itm.agencycode].children[itm.bureaucode].sum += val
         let tmp = new Node(itm.acctname, idx, parent)
         tmp.sum = val
@@ -186,6 +200,7 @@ export default {
 
       this.rawTree.total = total
       this.rawTree.tree = tree
+      this.rawTree.top = top
       return {total: total, tree: top}
     },
 
@@ -243,6 +258,49 @@ export default {
         ary.push(i)
       }
       return ary
+    },
+
+    genData () {
+      let data = []
+      let idx = 0
+      let top = new Node('Total', -1, null)
+      top.sum = 10000000
+      let tree = top.children
+      let total = 0//  = 1000000
+      for (let a = 4; a > 0; a--) {
+        let anam = 'A' + a.toString()
+        let anode = new Node(anam, -1, top)
+        anode.sum = a * 100000
+        anode.lockVal = anode.value / top.value
+        tree.push(anode)
+        for (let b = 4; b > 0; b--) {
+          let bnam = 'B' + anam + b.toString()
+          let bnode = new Node(bnam, -1, anode)
+          bnode.sum = a * b * 10000
+          bnode.lockVal = bnode.value / anode.value
+          anode.children.push(bnode)
+          for (let c = 4; c > 0; c--) {
+            let cnam = 'C' + bnam + c.toString()
+            let cnode = new Node(cnam, idx, bnode)
+            cnode.sum = a * b * c * 1000
+            cnode.lockVal = cnode.value / bnode.value
+            cnode._idx = idx
+            bnode.children.push(cnode)
+            data.push(cnode)
+            idx += 1
+            total += cnode.sum
+            console.log(cnam, anode.sum, bnode.sum, cnode.sum)
+          }
+        }
+      }
+      console.log(total)
+      this.setNodes(data)
+//      this.dataLoaded = []
+      top.total = total
+      this.rawTree.top = top
+      this.rawTree.tree = top.children
+      this.rawTree.total = total
+      return {top: top}
     }
 
   },
@@ -267,7 +325,15 @@ export default {
 
   },
 
-  watch: {}
+  watch: {
+    testData: function (val, old) {
+      if (val) {
+        this.genData()
+      } else {
+        this.loadData()
+      }
+    }
+  }
 }
 </script>
 

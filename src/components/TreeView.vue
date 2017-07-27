@@ -1,7 +1,7 @@
 <template>
   <div class="tree-view">
     <div v-if="top" class="tv-node">
-      <span>Total</span><span> {{ Math.floor(total / 1000) }} </span><br>
+      <span>Total</span><span> {{ top.showVal() }} </span><br>
       <input
         type="range"
         min="-10000000"
@@ -12,7 +12,7 @@
     <div v-for="node in nodes" class="tv-node">
         <tree-view-node
           :node="node"
-          v-on:chgParent="chgValue">
+          v-on:chgParent="top.chgParent">
           <!-- slider-node v-show="selected":node="node"></slider-node -->
         </tree-view-node>
         <br>
@@ -24,7 +24,7 @@
 import { mapGetters } from 'vuex'
 // import * as lib from '@/lib/values'
 
-// import Node from '@/api/Node'
+import Node from '@/api/Node'
 import SliderNode from './SliderNode'
 import TreeViewNode from './TreeViewNode'
 
@@ -36,7 +36,9 @@ export default {
   },
 
   props: {
-    top: {}
+    top: {
+      type: Node
+    }
 //    tree: {}
 //      type: Object,
 //      required: true
@@ -60,16 +62,12 @@ export default {
   created () {
     this.nodes = this.top.children
     this.total = this.top.total
-    this.difVal = 0
-    this.$on('chgParent', this.chgValue)
+    this.top.vue.push(this)
+    this.top.lockVal = 1
     console.log('tree', this.nodes.length)
   },
 
   methods: {
-    chgValue (val, node) {
-      this.difVal = val
-      console.log(this.difVal)
-    }
   },
 
   updated () {
